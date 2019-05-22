@@ -37,7 +37,16 @@ ifeq ($(RISCV_CMODEL),)
 RISCV_CMODEL = medany
 endif
 
-ifeq ($(LINK_TARGET),)
+ifeq ($(PROGRAM),dhrystone)
+LINK_TARGET = ramrodata
+# Ground rules
+#RISCV_XCFLAGS += -mexplicit-relocs -fno-inline -flto -fwhole-program
+# with inline and without lto
+#RISCV_XCFLAGS += -mexplicit-relocs -finline
+# Best Score
+RISCV_XCFLAGS += -finline -flto -fwhole-program
+RISCV_XCFLAGS += -DDHRY_ITERS=$(TARGET_DHRY_ITERS)
+else
 LINK_TARGET = default
 endif
 
@@ -152,6 +161,7 @@ $(PROGRAM_ELF): \
 		CCASFLAGS="$(RISCV_CCASFLAGS)" \
 		CFLAGS="$(RISCV_CFLAGS)" \
 		CXXFLAGS="$(RISCV_CXXFLAGS)" \
+		XCFLAGS="$(RISCV_XCFLAGS)" \
 		LDFLAGS="$(RISCV_LDFLAGS)" \
 		LDLIBS="$(RISCV_LDLIBS)"
 	mv $(SRC_DIR)/$(basename $(notdir $@)).map $(dir $@)
